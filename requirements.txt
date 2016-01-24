@@ -1,5 +1,5 @@
 Flask==0.10.1
 Flask-SQLAlchemy==2.1
+Flask-WhooshAlchemy-Redux==0.7.1
 Pillow==3.1.0
 requests==2.9.1
-pytesseract==0.1.6

@@ -68,6 +68,7 @@ def search_api():
     except:
         raise APIError("Did you mean to send: {'keywords': ['someword', 'anotherword'], 'page' : 1, 'page_size' : 10 }")
 
+# Error handlers
 
 @app.errorhandler(500)
 def internal_error(error):
@@ -85,9 +86,17 @@ def handle_api_error(error):
     response.status_code = error.status_code
     return response
 
+## TODO remove?
+# # Catch all unexpected exceptions
+# @app.errorhandler(Exception)
+# def handle_internal_error(error):
+#     response = jsonify("Internal Server Error: %s", error.message)
+#     response.status_code = 500 
+#     return response
 
-def setup_logging():
-    if not app.debug:
+
+def init_logging(debug=False):
+    if not debug:
         file_handler = FileHandler('error.log')
         file_handler.setFormatter(
             Formatter('%(asctime)s %(levelname)s: \
@@ -106,7 +115,6 @@ if __name__ == '__main__':
     parser.add_argument('--port', type=int, default=5000)
     args = parser.parse_args()
 
-    app.debug = args.debug
-    setup_logging()
+    init_logging(args.debug)
 
     app.run(host=args.host, port=args.port, debug=args.debug)

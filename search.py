@@ -1,22 +1,21 @@
 #!/usr/bin/env python
 
-import pytesseract
-from PIL import Image
-from PIL import ImageFilter
-from StringIO import StringIO
+"""OCR Search"""
+
+
 import os
 import requests
 import logging
 from logging import Formatter, FileHandler
-
-def save_ocr_meta_data(image_url, text, bounding_boxes=[]):
-	return []
+import database
+import argparse
 
 def search(keywords, page=1, page_size=10):
-	return []
-
-def main():
-    pass
+	return database.query_ocr_metadata(keywords, page, page_size)
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('keyword')
+    args = parser.parse_args()
+
+    print search(args.keyword)
