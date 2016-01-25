@@ -28,14 +28,12 @@ def process_image(url, lang="eng", store_data=False):
     boxes = []
     for line in data[1].splitlines():
         (char, x1, y1, x2, y2, page) = line.split()
-        boxes.append((char, (int(x1), int(y1), int(x2), int(y2), int(page))))
+        # convert from bottom left to top left origin
+        boxes.append((char, (int(x1), image.height - int(y1), int(x2), image.height - int(y2), int(page))))
 
-    # draw boxes on image
-    # draw = ImageDraw.Draw(image)
-    # for _, (x1, y1, x2, y2, _) in boxes:
-    #     print (x1, y1), (x2, y2)
-    #     draw.rectangle(((x1, image.height - y1), (x2, image.height - y2)), outline="blue")
-    # image.show()
+    #draw boxes on image
+    highlight_image(image, boxes)
+    image.show()
 
     if store_data:
         boxes_json = json.dumps(boxes)
@@ -43,6 +41,15 @@ def process_image(url, lang="eng", store_data=False):
 
     return (text, boxes)
 
+
+def highlight_image(image, bounding_boxes):
+    #draw boxes on image
+    draw = ImageDraw.Draw(image)
+
+    #print bounding_boxes
+    for _, (x1, y1, x2, y2, _) in bounding_boxes:
+        #print (x1, y1), (x2, y2)
+        draw.rectangle(((x1, y1), (x2, y2)), outline="blue")
 
 def download_file(url):
     try:

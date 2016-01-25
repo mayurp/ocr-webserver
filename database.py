@@ -11,7 +11,10 @@ import requests
 import logging
 from logging import Formatter, FileHandler
 from flask_sqlalchemy import SQLAlchemy
-import flask.ext.whooshalchemy as whooshalchemy
+
+#TODO Use whoosh for full text search
+#import flask.ext.whooshalchemy as whooshalchemy
+
 import datetime
 import server
 
@@ -37,7 +40,7 @@ class OcrMetaData(db.Model):
         return '<OcrMetaData %r>' % (self.image_url)
 
 db.create_all()
-whooshalchemy.whoosh_index(server.app, OcrMetaData)
+#whooshalchemy.whoosh_index(server.app, OcrMetaData)
 
 
 def save_ocr_metadata(image_url, text, bounding_boxes):
@@ -50,6 +53,7 @@ def save_ocr_metadata(image_url, text, bounding_boxes):
         db.session.add(OcrMetaData(image_url, text, bounding_boxes))
     db.session.commit()
 
+# TODO whoosh for full text search
 def query_ocr_metadata(keyword, page, page_size):
-    return OcrMetaData.query.whoosh_search('keyword OR blah')
-    #return OcrMetaData.query.all()
+    #return OcrMetaData.query.whoosh_search('keyword OR blah')
+    return OcrMetaData.query.filter(OcrMetaData.text.like("%" + keyword + "%")).paginate(page=page, per_page=page_size)
