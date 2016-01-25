@@ -2,9 +2,9 @@
 
 On OSX use the command "brew install" or on Ubuntu or Debian use "sudo apt-get install"
 
-tesseract 
-sqlite
-imagemagick
+- tesseract 
+- imagemagick
+- sqlite
 
 
 ## Setup python environment
@@ -31,4 +31,3 @@ pip install -r requirements.txt
 - Pdf support (both text based and scanned)
 - Search for multiple keywords with AND / OR expressions
 - Use libccv to improve speed and accuracy of Chinese character recognition
- 
