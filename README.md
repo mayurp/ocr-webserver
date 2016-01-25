@@ -1,4 +1,6 @@
-## Install packages 
+### Setup
+
+## Install native packages 
 
 On OSX use the command "brew install" or on Ubuntu or Debian use "sudo apt-get install"
 
@@ -7,17 +9,18 @@ On OSX use the command "brew install" or on Ubuntu or Debian use "sudo apt-get i
 - sqlite
 
 
-## Setup python environment
+## Setup python virtualenv
+
+sudo pip install virtualenv
 
 cd icicle-ocr
- 
-sudo pip install virtualenv
-	
+ 	
 virtualenv env
 
 source env/bin/activate
 
 pip install -r requirements.txt
+
 
 ## Run the server
 
@@ -26,21 +29,22 @@ pip install -r requirements.txt
 
 ## Test OCR REST API:
 
-# English
+### English
 curl --include --request POST --header "Content-Type: application/json" --data-binary "{  
     \"image_url\":\"http://bit.ly/ocrimage\",
     \"lang\":\"eng\"
 }" 'http://127.0.0.1:5000/v1/ocr'
 
-# English + Chinese
+
+### English + Chinese
+
 curl --include --request POST --header "Content-Type: application/json" --data-binary "{  
     \"image_url\":\"https://i.ytimg.com/vi/xEnutX1zZfA/maxresdefault.jpg\",
     \"lang\":\"eng+chi_tra\"
 }" 'http://127.0.0.1:5000/v1/ocr'
 
 
-
-## Test Search REST API:
+### Test Search REST API:
 
 curl --include --request GET --header "Content-Type: application/json" --data-binary "{  
     \"keywords\":\"you\",
