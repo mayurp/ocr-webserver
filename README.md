@@ -23,8 +23,31 @@ pip install -r requirements.txt
 
 ./server.py
 
-## Test ocr from command line and print text
-./ocr.py [image_url]
+
+## Test OCR REST API:
+
+# English
+curl --include --request POST --header "Content-Type: application/json" --data-binary "{  
+    \"image_url\":\"http://bit.ly/ocrimage\",
+    \"lang\":\"eng\"
+}" 'http://127.0.0.1:5000/v1/ocr'
+
+# English + Chinese
+curl --include --request POST --header "Content-Type: application/json" --data-binary "{  
+    \"image_url\":\"https://i.ytimg.com/vi/xEnutX1zZfA/maxresdefault.jpg\",
+    \"lang\":\"eng+chi_tra\"
+}" 'http://127.0.0.1:5000/v1/ocr'
+
+
+
+## Test Search REST API:
+
+curl --include --request GET --header "Content-Type: application/json" --data-binary "{  
+    \"keywords\":\"you\",
+    \"page\": 1,
+    \"page_size\": 10
+}" 'http://127.0.0.1:5000/v1/search'
+
 
 
 # TODOS
