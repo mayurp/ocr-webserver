@@ -25,3 +25,10 @@ pip install -r requirements.txt
 
 ## Test ocr from command line and print text
 ./ocr.py [image_url]
+
+
+# TODOS
+- Pdf support (both text based and scanned)
+- Search for multiple keywords with AND / OR expressions
+- Use libccv to improve speed and accuracy of Chinese character recognition
+ 
