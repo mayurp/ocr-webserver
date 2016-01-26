@@ -59,11 +59,11 @@ curl --include --request GET --header "Content-Type: application/json" --data-bi
 
 ### Standalone testing
 
-To test OCR directly, without the server:
+#### To test OCR directly, without the server:
 
 ./ocr.py https://i.ytimg.com/vi/xEnutX1zZfA/maxresdefault.jpg --store-data
 
-The image will then be searchable:
+#### The image will then be searchable:
 
 ./search.py 全文
 
