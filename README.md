@@ -48,7 +48,7 @@ curl --include --request POST --header "Content-Type: application/json" --data-b
 }" 'http://127.0.0.1:5000/v1/ocr'
 
 
-### Test Search REST API:
+## Test Search REST API:
 
 curl --include --request GET --header "Content-Type: application/json" --data-binary "{  
     \"keywords\":\"you\",
