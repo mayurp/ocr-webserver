@@ -1,15 +1,19 @@
+### Summary
+
+An OCR web service implemented in python.
+
 ### Setup
 
 ## Install native packages 
 
-On OSX use the command "brew install" or on Ubuntu or Debian use "sudo apt-get install"
+On OSX you can use "brew install" or on Ubuntu or Debian use "sudo apt-get install" 
 
 - tesseract 
 - imagemagick
 - sqlite
 
 
-## Setup python virtualenv
+## Setup python virtual environment
 
 sudo pip install virtualenv
 
@@ -36,7 +40,7 @@ curl --include --request POST --header "Content-Type: application/json" --data-b
 }" 'http://127.0.0.1:5000/v1/ocr'
 
 
-### English + Chinese
+### English and Chinese
 
 curl --include --request POST --header "Content-Type: application/json" --data-binary "{  
     \"image_url\":\"https://i.ytimg.com/vi/xEnutX1zZfA/maxresdefault.jpg\",
@@ -52,6 +56,16 @@ curl --include --request GET --header "Content-Type: application/json" --data-bi
     \"page_size\": 10
 }" 'http://127.0.0.1:5000/v1/search'
 
+
+### Standalone testing
+
+To test OCR directly, without the server:
+
+./ocr.py https://i.ytimg.com/vi/xEnutX1zZfA/maxresdefault.jpg --store-data
+
+The image will then be searchable:
+
+./search.py 全文
 
 
 # TODOS
