@@ -12,11 +12,11 @@ On OSX you can use "brew install" or on Ubuntu or Debian use "sudo apt-get insta
 - imagemagick
 - sqlite
 
-## Also to install tesseract on OSX with all languages support:
+## Install tesseract on OSX:
 
 brew install tesseract --all-languages
 
-#### Or on Debian with English and Chinese support:
+## Install tesseract on Debian:
 
 sudo apt-get install libtesseract-dev
 
