@@ -57,7 +57,7 @@ curl --include --request GET --header "Content-Type: application/json" --data-bi
 }" 'http://127.0.0.1:5000/v1/search'
 
 
-### Standalone testing
+## Standalone testing
 
 #### To test OCR directly, without the server:
 
