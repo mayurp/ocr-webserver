@@ -21,7 +21,7 @@ def process_image(url, lang="eng", store_data=False):
     imageFile = download_file(url)
     image = Image.open(imageFile)
     image = image.convert('L')
-    #    image.resize(size, Image.ANTIALIAS)
+    #image.resize(size, Image.ANTIALIAS)
     #image.show()
     text, box_text = tesseract.get_image_data(image, lang=lang, boxes=True)
 
@@ -37,7 +37,6 @@ def process_image(url, lang="eng", store_data=False):
 
     if store_data:
         boxes_json = json.dumps(boxes, ensure_ascii=False)
-        #print "-----",  type(boxes_json)
         database.save_ocr_metadata(url, text, boxes_json)
 
     return (text, boxes)
@@ -67,9 +66,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     text, boxes = process_image(args.image_url, lang=args.lang, store_data=args.store_data)
-
-    #text2 = unicode(text, 'utf8')
-
-    print type(boxes)
 
     print text

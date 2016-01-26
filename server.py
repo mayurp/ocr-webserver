@@ -50,7 +50,10 @@ def ocr_api():
 
     try:
         text, _ = ocr.process_image(url, lang)
-        return jsonify({"output": text})
+        response = jsonify({"output": text})
+        # workaround to set charset to utf8
+        response.headers['Content-Type'] = 'application/json; charset=utf-8'
+        return response
     except ocr.DownloadError as e:
         raise APIError(e.message)
     except Exception as e:
@@ -61,18 +64,14 @@ def ocr_api():
 @app.route('/v{}/search'.format(_VERSION), methods=["GET"])
 def search_api():
     try:
-        keywords = ""
-        page = 1
-        page_size = 10
-
-        keywords = request.json.get('keywords', keywords)
-        page = request.json.get('page', page)
-        page_size = request.json.get('page_size', page_size)
+        keywords = request.json['keywords']
+        page = int(request.json['page'])
+        page_size = int(request.json['page_size'])
     except:
         raise APIError("Did you mean to send: {'keywords': 'someword', 'page' : 1, 'page_size' : 10 }")
     try:
         results_xml = search.search_results_as_xml(keywords, page, page_size)
-        return Response(results_xml, mimetype='text/xml')
+        return Response(results_xml, mimetype='text/xml', char_set='utf-8')
     except Exception as e:
         raise APIError("Unexpected error during search: %s" % e.message, status_code=500)
 
