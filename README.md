@@ -4,13 +4,23 @@ An OCR web service implemented in python.
 
 # Setup
 
-## Install native packages 
+## Install dependencies 
 
 On OSX you can use "brew install" or on Ubuntu or Debian use "sudo apt-get install" 
 
-- tesseract 
+- leptonica
 - imagemagick
 - sqlite
+
+Also to install tesseract on OSX with all languages support:
+
+brew install tesseract --all-languages
+
+Or on Debian with English and Chinese support:
+
+sudo apt-get install libtesseract-dev
+sudo apt-get install tesseract-ocr-eng tesseract-ocr-chi-tra tesseract-ocr-chi-sim
+
 
 
 ## Setup python virtual environment
