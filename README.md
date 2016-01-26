@@ -77,9 +77,3 @@ curl --include --request GET --header "Content-Type: application/json" --data-bi
 ### The image will then be searchable:
 
 ./search.py 全文
-
-
-# TODOS
-- Pdf support (both text based and scanned)
-- Search for multiple keywords with AND / OR expressions
-- Use libccv to improve speed and accuracy of Chinese character recognition
