@@ -1,8 +1,8 @@
-### Summary
+# Summary
 
 An OCR web service implemented in python.
 
-### Setup
+# Setup
 
 ## Install native packages 
 
@@ -51,7 +51,7 @@ curl --include --request POST --header "Content-Type: application/json" --data-b
 ## Test Search REST API:
 
 curl --include --request GET --header "Content-Type: application/json" --data-binary "{  
-    \"keywords\":\"you\",
+    \"keywords\":\"全文\",
     \"page\": 1,
     \"page_size\": 10
 }" 'http://127.0.0.1:5000/v1/search'
