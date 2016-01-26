@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- encoding: utf-8-*-
 
 """OCR Helper"""
 
@@ -22,21 +23,21 @@ def process_image(url, lang="eng", store_data=False):
     image = image.convert('L')
     #    image.resize(size, Image.ANTIALIAS)
     #image.show()
-    data = tesseract.get_image_data(image, lang=lang, boxes=True)
+    text, box_text = tesseract.get_image_data(image, lang=lang, boxes=True)
 
-    text = data[0]
     boxes = []
-    for line in data[1].splitlines():
+    for line in box_text.splitlines():
         (char, x1, y1, x2, y2, page) = line.split()
         # convert from bottom left to top left origin
         boxes.append((char, (int(x1), image.height - int(y1), int(x2), image.height - int(y2), int(page))))
 
     #draw boxes on image
-    highlight_image(image, boxes)
-    image.show()
+    #highlight_image(image, boxes)
+    #image.show()
 
     if store_data:
-        boxes_json = json.dumps(boxes)
+        boxes_json = json.dumps(boxes, ensure_ascii=False)
+        #print "-----",  type(boxes_json)
         database.save_ocr_metadata(url, text, boxes_json)
 
     return (text, boxes)
@@ -62,11 +63,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('image_url')
     parser.add_argument('--lang', default='eng')
-    parser.add_argument('--store-data', action='store_true')
+    parser.add_argument('--store-data', action='store_true', help='Save the ocr meta data in the database')
     args = parser.parse_args()
 
-    data = process_image(args.image_url, lang=args.lang, store_data=args.store_data)
+    text, boxes = process_image(args.image_url, lang=args.lang, store_data=args.store_data)
 
-    #print data[0]
-    #print "-----"
-    #print data[1]
+    #text2 = unicode(text, 'utf8')
+
+    print type(boxes)
+
+    print text

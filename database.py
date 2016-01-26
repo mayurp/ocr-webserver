@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- encoding: utf-8-*-
 
 """Database Helper"""
 
@@ -18,17 +19,17 @@ from flask_sqlalchemy import SQLAlchemy
 import datetime
 import server
 
-server.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/test.sqlite'
+server.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/ocr.sqlite'
 server.app.config['WHOOSH_BASE'] = 'db/whoosh'
 server.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(server.app)
 
 class OcrMetaData(db.Model):
-    __searchable__ = 'text'
+    #__searchable__ = 'text'
 
-    image_url = db.Column(db.String, primary_key=True)
-    text = db.Column(db.Text)
-    bounding_boxes = db.Column(db.String)
+    image_url = db.Column(db.Text, primary_key=True)
+    text = db.Column(db.UnicodeText)
+    bounding_boxes = db.Column(db.UnicodeText)
     created = db.Column(db.DateTime, default=datetime.datetime.now())
     
     def __init__(self, image_url, text, bounding_boxes):
@@ -56,4 +57,5 @@ def save_ocr_metadata(image_url, text, bounding_boxes):
 # TODO whoosh for full text search
 def query_ocr_metadata(keyword, page, page_size):
     #return OcrMetaData.query.whoosh_search('keyword OR blah')
+    #return OcrMetaData.query.filter(OcrMetaData.text.like(("%" + keyword.decode("utf-8") + "%"))).paginate(page=page, per_page=page_size)
     return OcrMetaData.query.filter(OcrMetaData.text.like("%" + keyword + "%")).paginate(page=page, per_page=page_size)

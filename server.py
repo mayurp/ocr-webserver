@@ -1,15 +1,17 @@
 #!/usr/bin/env python
+# -*- encoding: utf-8-*-
 
 """OCR Webservice"""
 
 __author__ = "Mayur Patel"
 
 import argparse
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 import ocr
-from ocr import DownloadError
+#from ocr import DownloadError
 import logging
 from logging import Formatter, FileHandler
+import search
 
 _VERSION = 1
 
@@ -42,13 +44,14 @@ def hello():
 def ocr_api():
     try:
         url = request.json['image_url']
+        lang = request.json.get('lang', 'eng')
     except:
         raise APIError("Did you mean to send: {'image_url': 'some_jpeg_url'}")
 
     try:
-        output = ocr.process_image(url)
-        return jsonify({"output": output})
-    except DownloadError as e:
+        text, _ = ocr.process_image(url, lang)
+        return jsonify({"output": text})
+    except ocr.DownloadError as e:
         raise APIError(e.message)
     except Exception as e:
         raise APIError("Failed to process image: %s" % e.message, status_code=500)
@@ -58,15 +61,20 @@ def ocr_api():
 @app.route('/v{}/search'.format(_VERSION), methods=["GET"])
 def search_api():
     try:
-        keywords = [""]
+        keywords = ""
         page = 1
         page_size = 10
 
-        keywords = request.json('keywords', keywords)
+        keywords = request.json.get('keywords', keywords)
         page = request.json.get('page', page)
         page_size = request.json.get('page_size', page_size)
     except:
-        raise APIError("Did you mean to send: {'keywords': ['someword', 'anotherword'], 'page' : 1, 'page_size' : 10 }")
+        raise APIError("Did you mean to send: {'keywords': 'someword', 'page' : 1, 'page_size' : 10 }")
+    try:
+        results_xml = search.search_results_as_xml(keywords, page, page_size)
+        return Response(results_xml, mimetype='text/xml')
+    except Exception as e:
+        raise APIError("Unexpected error during search: %s" % e.message, status_code=500)
 
 # Error handlers
 

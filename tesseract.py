@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- encoding: utf-8-*-
 
 """Tesseract Wrapper"""
 
@@ -9,6 +10,7 @@ from os import path
 import shlex
 import shutil
 import tempfile
+import codecs
 
 class TesseractError(Exception):
     def __init__(self, status, message):
@@ -80,11 +82,11 @@ def get_image_data(image, lang=None, boxes=False, config=None):
             errors = get_errors(error_string)
             raise TesseractError(status, errors)
         
-        with open(output_file_name_base + ".txt", 'r') as text_file:
+        with codecs.open(output_file_name_base + ".txt", 'r', encoding='utf8') as text_file:
             text = text_file.read().strip()
             box_data = None
             if boxes:
-                with open(output_file_name_base + ".box", 'r') as box_file:
+                with codecs.open(output_file_name_base + ".box", 'r', encoding='utf8') as box_file:
                     box_data = box_file.read().strip()
             return (text, box_data)
     finally:
