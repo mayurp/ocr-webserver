@@ -16,7 +16,7 @@ On OSX you can use "brew install" or on Ubuntu or Debian use "sudo apt-get insta
 
 	brew install tesseract --all-languages
 
-### Install tesseract on Debian:
+### Install tesseract on Ubuntu or Debian:
 
 	sudo apt-get install libtesseract-dev
 	sudo apt-get install tesseract-ocr-eng tesseract-ocr-chi-tra tesseract-ocr-chi-sim
@@ -33,7 +33,7 @@ On OSX you can use "brew install" or on Ubuntu or Debian use "sudo apt-get insta
 	pip install -r requirements.txt
 
 
-## Starting the server
+## Start the server
 
 	./server.py
 
@@ -57,6 +57,8 @@ English and Traditional Chinese
 	    \"lang\":\"eng+chi_tra\"
 	}" 'http://127.0.0.1:5000/v1/ocr'
 
+
+For English and Simplified Chinese use `"lang": "eng+chi_sim"`
 
 ## Search API:
 
