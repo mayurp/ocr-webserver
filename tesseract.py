@@ -7,12 +7,18 @@ Tesseract 3.04 wrapper
 
 import argparse
 import os
+import sys
 import ctypes
 from  PIL import Image
 import time
 
 # Change this according to your platform
-LIB_NAME = "libtesseract.3.dylib"
+if sys.platform == "darwin":
+    LIB_NAME = "libtesseract.dylib"
+elif sys.platform == 'win':
+    LIB_NAME = "libtesseract.dll"
+else:
+    LIB_NAME = "libtesseract.so"
 
 class TesseractWrapper:
     class _TessBaseAPI(ctypes.Structure): pass

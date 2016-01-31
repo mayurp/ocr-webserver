@@ -67,10 +67,10 @@ def main():
 
     print image_url, boxes
 
-    imageFile = ocr.download_file(image_url)
-    image = Image.open(imageFile)
-    ocr.highlight_image(image, boxes)
-    image.show()
+    with ocr.download_file(image_url) as imageFile:
+        image = Image.open(imageFile)
+        ocr.highlight_image(image, boxes)
+        image.show()
 
     #print search_results_to_xml((image_url, boxes))
 

@@ -9,10 +9,11 @@ from logging import Formatter, FileHandler
 from PIL import Image, ImageFilter, ImageDraw
 import tesseract
 from StringIO import StringIO
-import requests
+import urllib
 import database
 import json
 from os import path
+import contextlib
 
 
 class DownloadError(Exception):
@@ -63,7 +64,7 @@ def download_file(url):
         if path.isfile(url):
             return open(url, 'rb')
         else:
-            return StringIO(requests.get(url).content)
+            return contextlib.closing(urllib.urlopen(url))
     except Exception as e:
         raise DownloadError("Failed to download image from url: %s, error: %s" & (url, e.message))
 
@@ -76,7 +77,6 @@ def main():
     args = parser.parse_args()
 
     text, boxes = process_image(args.image_url, lang=args.lang, store_data=args.store_data)
-
     print text 
     print "-----------"
     print boxes
