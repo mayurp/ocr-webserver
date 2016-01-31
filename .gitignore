@@ -2,4 +2,7 @@
 /.idea/
 *.log
 *.pyc
+*.png
+*.jpeg
+*.jpg
 /db/

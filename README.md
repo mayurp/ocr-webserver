@@ -11,9 +11,12 @@ On OSX you can use "brew install" or on Ubuntu or Debian use "sudo apt-get insta
 - leptonica
 - imagemagick
 - sqlite
+- swig
+- opencv
 
 ### Install tesseract on OSX:
-
+	brew tap homebrew/science
+	brew install opencv
 	brew install tesseract --all-languages
 
 ### Install tesseract on Ubuntu or Debian:
