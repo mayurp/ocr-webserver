@@ -29,4 +29,4 @@ RUN pip install -r requirements.txt
 EXPOSE 80
 
 #ENTRYPOINT python
-CMD python server.py --host=0.0.0.0 --port=80 --debug
+CMD python server.py --host=0.0.0.0 --port=80 #--debug

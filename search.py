@@ -5,7 +5,6 @@
 
 
 import os
-import requests
 import logging
 from logging import Formatter, FileHandler
 import database
@@ -55,7 +54,7 @@ def main():
     parser.add_argument('keyword')
     args = parser.parse_args()
 
-    results = search(unicode(args.keyword, 'utf8'))
+    results = search(unicode(args.keyword, 'utf-8'))
 
     if len(results) <= 0:
         print "No results"

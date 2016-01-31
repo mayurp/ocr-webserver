@@ -4,30 +4,27 @@ An OCR web service implemented in python.
 
 # Setup
 
-## Install dependencies 
+## Option 1. Using Docker 
 
-On OSX you can use "brew install" or on Ubuntu or Debian use "sudo apt-get install" 
+It is recommended to run the service inside a [Docker](#https://www.docker.com) container as it automates the installation of all the dependencies and you can sure it is running in the same environment as it was tested on.
 
-- leptonica
-- imagemagick
-- sqlite
-- swig
-- opencv
+To build the docker image:
+	
+	cd icicle-ocr
+	docker build -t ocr-webserver .
 
-### Install tesseract on OSX:
-	brew tap homebrew/science
-	brew install opencv
-	brew install tesseract --all-languages
+To run the container (this will start the server):
+	
+	docker run  -p 80:80 -i -t ocr-webserver 
 
-### Install tesseract on Ubuntu or Debian:
+Please refer to the Dockerfile for details of the container.
 
-	sudo apt-get install libtesseract-dev
-	sudo apt-get install tesseract-ocr-eng tesseract-ocr-chi-tra tesseract-ocr-chi-sim
+## Option 2. Manual Installation
 
+If you do not wish to use Docker. You will need to instead install all the dependencies specified in the Dockerfile yourself.
 
-
-### Setup python virtual environment
-
+Also, you should use virtualenv:
+	
 	sudo pip install virtualenv
 	
 	cd icicle-ocr
@@ -36,14 +33,16 @@ On OSX you can use "brew install" or on Ubuntu or Debian use "sudo apt-get insta
 	pip install -r requirements.txt
 
 
-## Start the server
+### Start the server
 
 	./server.py
 
 You can use run `./server.py --help` for startup options.
 
 
-## OCR API:
+## Testing the OCR API:
+
+Please note you should change the ip address and port according to your setup.
 
 English:
 	
@@ -63,7 +62,7 @@ English and Traditional Chinese
 
 For English and Simplified Chinese use `"lang": "eng+chi_sim"`
 
-## Search API:
+## Testing the Search API:
 
 	curl --include --request GET --header "Content-Type: application/json" --data-binary "{  
 	    \"keywords\":\"全文\",

@@ -71,7 +71,7 @@ def search_api():
         raise APIError("Did you mean to send: {'keywords': 'someword', 'page' : 1, 'page_size' : 10 }")
     try:
         results_xml = search.search_results_as_xml(keywords, page, page_size)
-        return Response(results_xml, mimetype='text/xml', char_set='utf-8')
+        return Response(results_xml, mimetype='text/xml')
     except Exception as e:
         raise APIError("Unexpected error during search: %s" % e.message, status_code=500)
 
