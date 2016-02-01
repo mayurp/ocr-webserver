@@ -25,10 +25,8 @@ class DownloadError(Exception):
 def process_image(url, lang="eng", store_data=False):
     with download_file(url) as imageFile:
         if is_pdf(imageFile):
-            print "its a pdf!"
             image = pdf_to_image(imageFile)
         else:
-            print "its NOT a pdf!"
             image = Image.open(imageFile)
 
         with image:
@@ -117,7 +115,11 @@ def main():
     parser.add_argument('--store-data', action='store_true', help='Save the ocr meta data in the database')
     args = parser.parse_args()
 
-    text, boxes = process_image(args.image_url, lang=args.lang, store_data=args.store_data)
+    url = args.image_url
+    if path.isfile(url):
+        url = path.abspath(url)
+
+    text, boxes = process_image(url, lang=args.lang, store_data=args.store_data)
     print text 
     print "-----------"
     print boxes

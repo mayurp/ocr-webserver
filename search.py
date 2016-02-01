@@ -73,16 +73,11 @@ def main():
         return
 
     print "Found ", len(results), " results:"
-
     for  image_url, boxes in results:
         print image_url, boxes
 
-    print "First result: "
-
+    print "Displaying first result image: "
     image_url, boxes = results[0]
-
-    print image_url, boxes
-
     debug_show_search_result(image_url, boxes)
 
 
