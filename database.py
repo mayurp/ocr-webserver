@@ -12,12 +12,14 @@ import requests
 import logging
 from logging import Formatter, FileHandler
 from flask_sqlalchemy import SQLAlchemy
-
 #TODO Use whoosh for full text search
 #import flask.ext.whooshalchemy as whooshalchemy
-
 import datetime
 import server
+
+
+if not os.path.exists("db"):
+    os.makedirs("db")
 
 server.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/ocr.sqlite'
 server.app.config['WHOOSH_BASE'] = 'db/whoosh'

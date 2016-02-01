@@ -49,7 +49,7 @@ def ocr_api():
         raise APIError("Did you mean to send: {'image_url': 'some_jpeg_url'}")
 
     try:
-        text, _ = ocr.process_image(url, lang)
+        text, _ = ocr.process_image(url, lang, store_data=True)
         response = jsonify({"output": text})
         # workaround to set charset to utf8
         response.headers['Content-Type'] = 'application/json; charset=utf-8'
