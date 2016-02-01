@@ -5,4 +5,5 @@
 *.png
 *.jpeg
 *.jpg
+/temp/
 /db/

@@ -17,7 +17,6 @@ from flask_sqlalchemy import SQLAlchemy
 import datetime
 import server
 
-
 if not os.path.exists("db"):
     os.makedirs("db")
 
@@ -33,7 +32,7 @@ class OcrMetaData(db.Model):
     text = db.Column(db.UnicodeText)
     bounding_boxes = db.Column(db.UnicodeText)
     created = db.Column(db.DateTime, default=datetime.datetime.now())
-    
+
     def __init__(self, image_url, text, bounding_boxes):
         self.image_url = image_url
         self.text = text

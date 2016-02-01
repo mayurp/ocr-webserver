@@ -20,6 +20,7 @@ elif sys.platform == 'win':
 else:
     LIB_NAME = "libtesseract.so"
 
+
 class TesseractWrapper:
     class _TessBaseAPI(ctypes.Structure): pass
     class _TessResultRenderer(ctypes.Structure) : pass
@@ -87,12 +88,14 @@ class TesseractWrapper:
         self.tesseract = tesseract
         self.api = api
 
+
     def __del__(self):
         if self. tesseract and self.api:
             self.tesseract.TessBaseAPIDelete(self.api)
 
+
     # Return tuple of text and bounding boxes
-    def get_image_data(self, image):
+    def get_image_data(self, image, page):
         w, h = image.size
         data = image.tobytes() 
         d = len(data) / (w*h)
@@ -102,16 +105,18 @@ class TesseractWrapper:
         #self.tesseract.TessDeleteText(c_text)
         text = ctypes.string_at(c_text)
 
-        c_boxes = self.tesseract.TessBaseAPIGetBoxText(self.api, 0)
+        c_boxes = self.tesseract.TessBaseAPIGetBoxText(self.api, page)
         #self.tesseract.TessDeleteText(c_boxes)
         boxes = ctypes.string_at(c_boxes)
 
         return unicode(text, 'utf-8'), unicode(boxes, 'utf-8')
 
-def get_image_data(image, lang):
+
+def get_image_data(image, lang, page=0):
     tessData = os.environ.get('TESSDATA_PREFIX', None)
     wrapper = TesseractWrapper(lang, tessData)
-    return wrapper.get_image_data(image)
+    return wrapper.get_image_data(image, page)
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -133,6 +138,7 @@ def main():
     print text 
     print "-----------"
     print boxes
+
 
 if __name__ == '__main__':
     main()

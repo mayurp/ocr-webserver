@@ -8,12 +8,14 @@ import logging
 from logging import Formatter, FileHandler
 from PIL import Image, ImageFilter, ImageDraw
 import tesseract
-from StringIO import StringIO
+from cStringIO import StringIO
 import urllib
 import database
 import json
 from os import path
 import contextlib
+import tempfile
+from wand.image import Image as WandImage
 
 
 class DownloadError(Exception):
@@ -22,31 +24,52 @@ class DownloadError(Exception):
 
 def process_image(url, lang="eng", store_data=False):
     with download_file(url) as imageFile:
-        image = Image.open(imageFile)
-        image = image.convert('L')
-        
-        # TODO resize to minimum size to improve ocr result
-        #image.resize(size, Image.ANTIALIAS)
-        
-        text, box_text = tesseract.get_image_data(image, lang)
-        text = text.strip()
-        box_text = box_text.strip()
+        if is_pdf(imageFile):
+            print "its a pdf!"
+            image = pdf_to_image(imageFile)
+        else:
+            print "its NOT a pdf!"
+            image = Image.open(imageFile)
 
-        boxes = []
-        for line in box_text.splitlines():
-            (char, x1, y1, x2, y2, page) = line.split()
-            # convert from bottom left to top left origin
-            boxes.append((char, (int(x1), image.height - int(y1), int(x2), image.height - int(y2), int(page))))
+        with image:
+            num_pages = get_page_count(image)
+            
+            # TODO resize to minimum size to improve ocr result
+            #image.resize(size, Image.ANTIALIAS)
+            #exit(-1)
 
-        #draw boxes on image
-        #highlight_image(image, boxes)
-        #image.show()
+            all_text = ""
+            boxes = []
 
-        if store_data:
-            boxes_json = json.dumps(boxes, ensure_ascii=False)
-            database.save_ocr_metadata(url, text, boxes_json)
+            # handle multi page images (i.e. tiffs)
+            print "Num pages: ", num_pages
 
-        return (text, boxes)
+            wrapper = tesseract.TesseractWrapper(lang, None)
+
+            for page in range(0, num_pages):
+                image.seek(page)
+                image_page = image.convert('L')
+
+                text, box_text = wrapper.get_image_data(image, page) #tesseract.get_image_data(image_page, lang, page)
+                text = text.strip()
+                box_text = box_text.strip()
+
+                for line in box_text.splitlines():
+                    (char, x1, y1, x2, y2, page_num) = line.split()
+                    # convert from bottom left to top left origin
+                    boxes.append((char, (int(x1), image.height - int(y1), int(x2), image.height - int(y2), int(page_num))))
+
+                all_text += text
+
+                #draw boxes on image
+                #highlight_image(image, boxes)
+                #image.show()
+
+            if store_data:
+                boxes_json = json.dumps(boxes, ensure_ascii=False)
+                database.save_ocr_metadata(url, all_text, boxes_json)
+
+            return (all_text, boxes)
 
 
 def highlight_image(image, bounding_boxes):
@@ -69,6 +92,24 @@ def download_file(url):
         raise DownloadError("Failed to download image from url: %s, error: %s" & (url, e.message))
 
 
+def is_pdf(aFile):
+    header = str(aFile.read(4)) 
+    aFile.seek(0)
+    return header == "%PDF"
+
+
+def pdf_to_image(imageFile):
+    # Open from filename since opening as file handle means the 
+    # format isn't detected as pdf
+    with WandImage(filename=imageFile.name, resolution=400) as wand_image:
+        # tif written can't be read by Pillow so use gif instead which also supports multi-page
+        return Image.open(StringIO(wand_image.make_blob(format='gif')))
+
+
+def get_page_count(image):
+    return getattr(image, 'n_frames', 1)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('image_url')
@@ -81,5 +122,7 @@ def main():
     print "-----------"
     print boxes
 
+
 if __name__ == '__main__':
     main()
+

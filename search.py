@@ -49,9 +49,21 @@ def search_results_as_xml(keywords, page, page_size):
     return etree.tostring(root)
 
 
+# For debugging bounding box data
+def debug_show_search_result(image_url, boxes):    
+    with ocr.download_file(image_url) as imageFile:
+        with Image.open(imageFile) as image:
+            num_pages = ocr.get_page_count(image)
+            for page in range(0, num_pages):
+                image.seek(page)
+                ocr.highlight_image(image, boxes)
+                image.show()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('keyword')
+    parser.add_argument('--show-first', help="Display first result with bounding boxes")
     args = parser.parse_args()
 
     results = search(unicode(args.keyword, 'utf-8'))
@@ -60,18 +72,19 @@ def main():
         print "No results"
         return
 
+    print "Found ", len(results), " results:"
+
+    for  image_url, boxes in results:
+        print image_url, boxes
+
     print "First result: "
 
     image_url, boxes = results[0]
 
     print image_url, boxes
 
-    with ocr.download_file(image_url) as imageFile:
-        image = Image.open(imageFile)
-        ocr.highlight_image(image, boxes)
-        image.show()
+    debug_show_search_result(image_url, boxes)
 
-    #print search_results_to_xml((image_url, boxes))
 
 if __name__ == '__main__':
     main()
