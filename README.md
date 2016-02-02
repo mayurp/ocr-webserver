@@ -80,3 +80,7 @@ To test OCR directly, without the server:
 The image will then be searchable:
 
 	./search.py 全文
+	
+To run these tests in the docker container simply use `docker exec`. For example:
+
+	docker exec <CONTAINER-ID> ./search.py "全文"
