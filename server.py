@@ -61,7 +61,7 @@ def ocr_api():
 
 
 # Search OCR meta data of processed images
-@app.route('/v{}/search'.format(_VERSION), methods=["GET"])
+@app.route('/v{}/search'.format(_VERSION), methods=["GET", "POST"])
 def search_api():
     try:
         keywords = request.json['keywords']
