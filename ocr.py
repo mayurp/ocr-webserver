@@ -9,7 +9,7 @@ from logging import Formatter, FileHandler
 from PIL import Image, ImageFilter, ImageDraw
 import tesseract
 from cStringIO import StringIO
-import urllib
+import requests
 import database
 import json
 from os import path
@@ -85,9 +85,11 @@ def download_file(url):
         if path.isfile(url):
             return open(url, 'rb')
         else:
-            return contextlib.closing(urllib.urlopen(url))
+            #, headers={'User-Agent': 'OCR Server 1.0'}
+            data = requests.get(url).content
+            return contextlib.closing(StringIO(data))
     except Exception as e:
-        raise DownloadError("Failed to download image from url: %s, error: %s" & (url, e.message))
+        raise DownloadError("Failed to download image from url: %s, error: %s" % (url, e))
 
 
 def is_pdf(aFile):
