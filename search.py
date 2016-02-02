@@ -38,13 +38,12 @@ def search(keywords, page=1, page_size=10):
 def search_results_as_xml(keywords, page, page_size):
     results = search(keywords, page, page_size)
 
-    root = etree.Element('search_result', recordsfound=str(len(results)), page=str(page), page_size=str(page_size), keywords=keywords)
+    root = etree.Element('search_result', records_found=str(len(results)), page=str(page), page_size=str(page_size), keywords=keywords)
     #doc = etree.ElementTree(root)
-    for r in results:
-        imageElem = etree.SubElement(root, 'image', url=r[0])
-        boxes = r[1]
-        for _, (x1, y1, x2, y2, _) in boxes:
-            boxElem = etree.SubElement(imageElem, 'match_spot', x1=str(x1), y1=str(y1), x2=str(x2), y2=str(y2)) 
+    for url, boxes in results:
+        imageElem = etree.SubElement(root, 'image', url=url)
+        for _, (x1, y1, x2, y2, page) in boxes:
+            etree.SubElement(imageElem, 'match_spot', x1=str(x1)+'px', y1=str(y1)+'px', x2=str(x2)+'px', y2=str(y2)+'px', page=str(page+1))
 
     return etree.tostring(root)
 
