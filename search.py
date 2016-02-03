@@ -51,7 +51,7 @@ def search_results_as_xml(keywords, page, page_size):
 # For debugging bounding box data
 def debug_show_search_result(image_url, boxes):    
     with ocr.download_file(image_url) as imageFile:
-        with Image.open(imageFile) as image:
+        with ocr.get_image(imageFile) as image:
             num_pages = ocr.get_page_count(image)
             for page in range(0, num_pages):
                 image.seek(page)
@@ -60,9 +60,11 @@ def debug_show_search_result(image_url, boxes):
 
 
 def main():
+    logging.basicConfig(level=logging.DEBUG)
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('keyword')
-    parser.add_argument('--show-first', help="Display first result with bounding boxes")
+    parser.add_argument('--show', action='store_true', help="Show first image result with bounding boxes")
     args = parser.parse_args()
 
     results = search(unicode(args.keyword, 'utf-8'))
@@ -75,10 +77,10 @@ def main():
     for  image_url, boxes in results:
         print image_url, boxes
 
-    print "Displaying first result image: "
-    image_url, boxes = results[0]
-    debug_show_search_result(image_url, boxes)
-
+    if args.show:
+        print "Showing first result image: "
+        image_url, boxes = results[0]
+        debug_show_search_result(image_url, boxes)
 
 if __name__ == '__main__':
     main()
