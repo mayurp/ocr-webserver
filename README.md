@@ -21,9 +21,9 @@ Please refer to the Dockerfile for details of the container.
 
 ## Option 2. Manual Installation
 
-If you do not wish to use Docker. You will need to instead install all the dependencies specified in the Dockerfile yourself.
+If you do not wish to use Docker you will need to instead install all the dependencies specified in the Dockerfile yourself.
 
-Also, you should use virtualenv:
+Also, you should use python virtualenv:
 	
 	sudo pip install virtualenv
 	
