@@ -102,10 +102,13 @@ def download_file(url):
         else:
             #, headers={'User-Agent': 'OCR Server 1.0'}
             logging.info("Downloading file: %s", url)
-            data = requests.get(url).content
-            return contextlib.closing(StringIO(data))
+            response = requests.get(url)
+            if response.status_code == 200:
+                return contextlib.closing(StringIO(response.content))
+            else:
+                raise DownloadError("Failed to download image: %s, response: %d" % (url, response.status_code))
     except Exception as e:
-        raise DownloadError("Failed to download image from url: %s, error: %s" % (url, e))
+        raise DownloadError("Failed to download image: %s, error: %s" % (url, e))
 
 
 def get_image(imageFile):
