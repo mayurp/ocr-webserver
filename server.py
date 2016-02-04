@@ -79,12 +79,12 @@ def search_api():
 
 @app.errorhandler(500)
 def internal_error(error):
-    print str(error)
+    logging.info(str(error))
 
 
 @app.errorhandler(404)
 def not_found_error(error):
-    print str(error)
+    logging.info(str(error))
 
 
 @app.errorhandler(APIError)

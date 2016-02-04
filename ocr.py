@@ -67,8 +67,8 @@ def process_image(url, lang="eng", store_data=False):
                 all_text += text
 
                 #draw boxes on original image
-                highlight_image(image, boxes)
-                image.show()
+                #highlight_image(image, boxes)
+                #image.show()
             
             # Verify text matches boxes indices
             stripped_text = re.sub(r"\s", "", all_text)
@@ -150,9 +150,9 @@ def main():
         url = path.abspath(url)
 
     text, boxes = process_image(url, lang=args.lang, store_data=args.store_data)
-    print text 
-    print "-----------"
-    print boxes
+    logging.info(text)
+    logging.info("---------------")
+    logging.info(boxes)
 
 
 if __name__ == '__main__':

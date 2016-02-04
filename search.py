@@ -70,15 +70,15 @@ def main():
     results = search(unicode(args.keyword, 'utf-8'))
 
     if len(results) <= 0:
-        print "No results"
+        logging.info("No results")
         return
 
-    print "Found ", len(results), " results:"
+    logging.info("Found %d results:", len(results))
     for  image_url, boxes in results:
-        print image_url, boxes
+        logging.info(image_url + ":" + boxes)
 
     if args.show:
-        print "Showing first result image: "
+        logging.info("Showing first result image:")
         image_url, boxes = results[0]
         debug_show_search_result(image_url, boxes)
 

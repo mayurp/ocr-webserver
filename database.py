@@ -46,6 +46,7 @@ db.create_all()
 
 
 def save_ocr_metadata(image_url, text, bounding_boxes):
+    logging.info("Saving metadata to database for: %s", image_url)
     existing_record = OcrMetaData.query.get(image_url)
     if existing_record:
         existing_record.text = text
