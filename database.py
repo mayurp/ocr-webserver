@@ -61,4 +61,5 @@ def save_ocr_metadata(image_url, text, bounding_boxes):
 
 # TODO whoosh for full text search
 def query_ocr_metadata(keyword, page, page_size):
-    return session.query(OcrMetaData).filter(OcrMetaData.text.like("%" + keyword + "%")).paginate(page=page, per_page=page_size)
+    offset = page_size * max(0, (page - 1))
+    return session.query(OcrMetaData).filter(OcrMetaData.text.like("%" + keyword + "%")).limit(page_size).offset(offset).all()

@@ -17,11 +17,11 @@ import ocr
 import xml.etree.ElementTree as etree
 
 def search(keywords, page=1, page_size=10):
-    pages = database.query_ocr_metadata(keywords, page, page_size)
+    records = database.query_ocr_metadata(keywords, page, page_size)
 
     # find keyword bounds
     results = []
-    for record in pages.items:
+    for record in records:
         text = re.sub(r"\s", "", record.text)
         bounding_boxes = json.loads(record.bounding_boxes)
         positions = [(match.start(), len(keywords))  for match in re.finditer(re.escape(keywords), text)]

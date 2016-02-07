@@ -22,11 +22,12 @@ from tornado_smack import App
 import random, time
 import sys
 
-#import ocr
-#import search
+import ocr
+import search
 
 
 app = App()
+
 
 
 class APIError(web.HTTPError):
@@ -52,33 +53,9 @@ class BaseHandler(tornado.web.RequestHandler):
     #    logging.error('error')
         #write_error(self, 500, e)
 
+
 class DefaultHandler(BaseHandler):
     pass
-
-
-# class MyHandler(RequestHandler):
-#     def __init__(self, loop=None):
-#         print "making handler"
-#         self.executor = futures.ThreadPoolExecutor(4)
-#         self.loop = loop or IOLoop.instance()
-
-#     @run_on_executor
-#     def long_running_task(self):
-#         tau = random.randint(0, 3)
-#         print "about to sleep for ", tau
-#         time.sleep(tau)
-#         return tau
-
-
-#class MyHandler(tornado.web.RequestHandler):
-
-#@run_on_executor
-def long_running_task(i):
-    print "hreeer long_running_task"
-    #tau = random.randint(0, i)
-    time.sleep(i)
-    print "end long_running_task"
-    return i
 
 
 @app.route("/")
@@ -97,12 +74,12 @@ def ocr_api(self):
         raise APIError("Did you mean to send: {'image_url': 'some_jpeg_url'}")
 
     try:
-        text, _ = "test", "" #ocr.process_image(url, lang, store_data=True)
+        text, _ = ocr.process_image(url, lang, store_data=True)
         # workaround to set charset to utf8
         self.set_header('Content-Type', 'application/json')
-        self.write(json.dumps({"output" : text}))
-    #except ocr.DownloadError as e:
-    #    raise APIError(e.message)
+        self.write(json.dumps({"output" : text}, ensure_ascii=False))
+    except ocr.DownloadError as e:
+        raise APIError(e.message)
     except Exception as e:
         raise APIError("Failed to process image: %s" % e.message, status_code=500)
 
@@ -112,15 +89,13 @@ def ocr_api(self):
 def search_api(self):
     try:
         request_json = json.loads(self.request.body)
-        #print self.request.body
         keywords = request_json['keywords']
         page = int(request_json['page'])
         page_size = int(request_json['page_size'])
     except:
         raise APIError("Did you mean to send: {'keywords': 'someword', 'page' : 1, 'page_size' : 10 }")
     try:
-        results_xml = "<test>"#search.search_results_as_xml(keywords, page, page_size)
-        #return Response(results_xml, mimetype='text/xml')
+        results_xml = search.search_results_as_xml(keywords, page, page_size)
         self.set_header('Content-Type', 'text/xml')
         self.write(results_xml)
     except Exception as e:
