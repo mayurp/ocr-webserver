@@ -45,7 +45,7 @@ def search_results_as_xml(keywords, page, page_size):
         for _, (x1, y1, x2, y2, page) in boxes:
             etree.SubElement(imageElem, 'match_spot', x1=str(x1)+'px', y1=str(y1)+'px', x2=str(x2)+'px', y2=str(y2)+'px', page=str(page+1))
 
-    return etree.tostring(root)
+    return etree.tostring(root, encoding="utf-8")
 
 
 # For debugging bounding box data
