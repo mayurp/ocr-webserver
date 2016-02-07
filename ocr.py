@@ -131,7 +131,7 @@ def pdf_to_image(imageFile):
     with WandImage(filename=imageFile.name, resolution=300) as wand_image:
         # tif written can't be read by Pillow so use gif instead which also supports multi-page
         #print wand_image.size
-        data = StringIO(wand_image.make_blob(format='gif'))
+        data = BytesIO(wand_image.make_blob(format='gif'))
         return Image.open(data)
 
 

@@ -21,6 +21,7 @@ import multiprocessing
 from tornado_smack import App
 import random, time
 import sys
+import signal
 import ConfigParser
 
 import ocr
@@ -66,6 +67,7 @@ def hello():
 
 # Run OCR on provided image and return UT8 text. OCR meta data is persisted  
 @app.route('/ocr', methods=["POST"])
+@coroutine
 def ocr_api(self):
     try:
         request_json = json.loads(self.request.body)
@@ -75,10 +77,11 @@ def ocr_api(self):
         raise APIError("Did you mean to send: {'image_url': 'some_jpeg_url'}")
 
     try:
-        text, _ = ocr.process_image(url, lang, store_data=True)
+        #text, _ = ocr.process_image(url, lang, store_data=True)
+        text, _ = yield ocr_executor.submit(ocr.process_image, url, lang, store_data=True)
         # workaround to set charset to utf8
         self.set_header('Content-Type', 'application/json')
-        self.write(json.dumps({"output" : text}, ensure_ascii=False))
+        #self.write(json.dumps({"output" : text}, ensure_ascii=False))
     except ocr.DownloadError as e:
         raise APIError(e.message)
     except Exception as e:
@@ -156,6 +159,36 @@ def init_logging(debug=False):
         app.logger.info('errors')
 
 
+MAX_WAIT_SECONDS_BEFORE_SHUTDOWN = 3
+
+
+def shutdown():
+    logging.info('Stopping http server')
+    server.stop()
+
+    logging.info('Will shutdown in %s seconds ...', MAX_WAIT_SECONDS_BEFORE_SHUTDOWN)
+    io_loop = tornado.ioloop.IOLoop.instance()
+
+    deadline = time.time() + MAX_WAIT_SECONDS_BEFORE_SHUTDOWN
+
+    def stop_loop():
+        now = time.time()
+        if now < deadline and (io_loop._callbacks or io_loop._timeouts):
+            io_loop.add_timeout(now + 1, stop_loop)
+        else:
+            io_loop.stop()
+            logging.info('Shutdown')
+    
+    stop_loop()
+
+    ocr_executor.shutdown()
+
+
+def sig_handler(sig, frame):
+    logging.warning('Caught signal: %s', sig)
+    tornado.ioloop.IOLoop.instance().add_callback(shutdown)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--debug', action='store_true', help="For development only. Allows auto reloading of code")
@@ -181,8 +214,14 @@ if __name__ == '__main__':
 
     logging.info('Starting up...')
     application = tornado.web.Application(app.get_routes(), default_handler_class=DefaultHandler, debug=args.debug)
+    
+    global server
+
     server = tornado.httpserver.HTTPServer(application)
     server.bind(args.port)
+    
+    signal.signal(signal.SIGTERM, sig_handler)
+    signal.signal(signal.SIGINT, sig_handler)
 
     logging.info("Starting server processes: %d", server_processes)
     server.start(server_processes)    
