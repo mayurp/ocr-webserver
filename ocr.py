@@ -94,6 +94,15 @@ def highlight_image(image, bounding_boxes):
         #print (x1, y1), (x2, y2)
         draw.rectangle(((x1, y1), (x2, y2)), outline="blue")
 
+def highlight_keywords(image, bounding_boxes, page):
+    #draw boxes on image
+    draw = ImageDraw.Draw(image)
+
+    #print bounding_boxes
+    for keyword, boxes in bounding_boxes:
+        for x1, y1, x2, y2, p in boxes:
+            if p == page:
+                draw.rectangle(((x1, y1), (x2, y2)), outline="blue")
 
 def download_file(url):
     try:
