@@ -9,15 +9,16 @@ from logging import Formatter, FileHandler
 import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 import datetime
-from sqlalchemy import Column, Integer, String, Text, UnicodeText, DateTime
+from sqlalchemy import Column, String, DateTime, or_, and_
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy_utils import escape_like
 
 
 if not os.path.exists("db"):
     os.makedirs("db")
 
 Base = declarative_base()
-engine = sqlalchemy.create_engine('sqlite:///db/ocr.sqlite')
+engine = sqlalchemy.create_engine('sqlite:///db/ocr.sqlite')#, echo=True)
 # Construct a sessionmaker object
 Session = sessionmaker()
 # Bind the sessionmaker to engine
@@ -59,7 +60,30 @@ def save_ocr_metadata(image_url, text, bounding_boxes):
     session.commit()
 
 
-# TODO whoosh for full text search
-def query_ocr_metadata(keyword, page, page_size):
+def query_ocr_metadata(parsed_query, page, page_size):
     offset = page_size * max(0, (page - 1))
-    return session.query(OcrMetaData).filter(OcrMetaData.text.like("%" + keyword + "%")).limit(page_size).offset(offset).all()
+    query_filter = get_filter(parsed_query)
+    sql_query = session.query(OcrMetaData).filter(query_filter).limit(page_size).offset(offset)
+    #print str(sql_query)
+    return sql_query.all()
+
+
+# Turn parsed query into sqlalchemy filter
+def get_filter(l):
+    if type(l) is list:
+        if len(l) == 1:
+            return get_filter(l[0])
+        else:
+            op_str = l[1]
+            if op_str == "AND":
+                op = and_
+            else: #OR
+                op = or_
+
+            args = []
+            for e in l[0::2]:
+                print e
+                args += [get_filter(e)]
+            return op(*args)
+    else:
+        return OcrMetaData.text.like("%" + escape_like(l) + "%")

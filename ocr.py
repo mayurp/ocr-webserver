@@ -18,6 +18,10 @@ from wand.image import Image as WandImage
 import re
 
 
+MIN_WIDTH = 1000
+MIN_HEIGHT = 2000
+
+
 class DownloadError(Exception):
     pass
 
@@ -38,10 +42,21 @@ def process_image(url, lang="eng", store_data=False):
             for page in range(0, num_pages):
                 image.seek(page)
                 w, h = image.size
+                scale_x, scale_y = 1.0, 1.0
+                if w < MIN_WIDTH:
+                    scale_x = float(MIN_WIDTH) / w
+                if h < MIN_HEIGHT:
+                    scale_y = float(MIN_HEIGHT) / h
+                scale = max(scale_x, scale_y)
 
-                scaled_image = image.convert('L')                
-                # TODO resize to minimum size to improve ocr result
-                #scaled_image = scaled_image.resize((w * 2, h * 2), Image.ANTIALIAS)
+                #print scale_x, scale_y
+                scaled_image = image
+                if scale > 1:
+                    logging.debug("Upscaling image to: %d x %d", int(w * scale), int(h * scale))
+                    scaled_image = image.resize((int(w * scale), int(h * scale)), Image.ANTIALIAS)
+
+                scaled_image = scaled_image.convert('L')
+
                 scaled_w, scaled_h = scaled_image.size
 
                 logging.info("Running tesseract on page: %s", page)
@@ -94,6 +109,15 @@ def highlight_image(image, bounding_boxes):
         #print (x1, y1), (x2, y2)
         draw.rectangle(((x1, y1), (x2, y2)), outline="blue")
 
+def highlight_keywords(image, bounding_boxes, page):
+    #draw boxes on image
+    draw = ImageDraw.Draw(image)
+
+    #print bounding_boxes
+    for keyword, boxes in bounding_boxes:
+        for x1, y1, x2, y2, p in boxes:
+            if p == page:
+                draw.rectangle(((x1, y1), (x2, y2)), outline="blue")
 
 def download_file(url):
     try:
