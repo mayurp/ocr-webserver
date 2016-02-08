@@ -88,20 +88,17 @@ def search(query, page=1, page_size=10):
         for keyword in keywords:
             # Get start and end position of keyword
             positions = [(match.start(), len(keyword)) for match in re.finditer(re.escape(keyword), text)]
-            # Get bounding box if each character
+            # Get bounding box of each character
             keyword_char_boxes = [bounding_boxes[start:start+length] for start, length in positions]
-            # Flatten list
-            keyword_char_boxes = [item for sublist in keyword_char_boxes for item in sublist]
-            
-            # Merge bounding boxes for the keyword
-            keyword_boxes = [box for _, box in keyword_char_boxes]
 
-            # Separate boxes by page
-            boxes_forpage = []
-            for boxes in group_boxes_by_page(keyword_boxes):
-                boxes_forpage += [merge_bounding_boxes(boxes)]
-            
-            image_results += [(keyword, boxes_forpage)]
+            keyword_boxes = []
+            for word_boxes in keyword_char_boxes:
+                word_boxes = [box for _, box in word_boxes]
+                word_boxes_by_page = group_boxes_by_page(word_boxes)
+                for word_boxes_for_page in word_boxes_by_page:
+                    keyword_boxes += [merge_bounding_boxes(word_boxes_for_page)]
+
+            image_results += [(keyword, keyword_boxes)]
 
         results += [(record.image_url, image_results)]
     return results

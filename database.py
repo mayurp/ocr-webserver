@@ -9,7 +9,7 @@ from logging import Formatter, FileHandler
 import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 import datetime
-from sqlalchemy import Column, Integer, String, Text, UnicodeText, DateTime, or_, and_
+from sqlalchemy import Column, String, DateTime, or_, and_
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import escape_like
 
@@ -18,7 +18,7 @@ if not os.path.exists("db"):
     os.makedirs("db")
 
 Base = declarative_base()
-engine = sqlalchemy.create_engine('sqlite:///db/ocr.sqlite', echo=True)
+engine = sqlalchemy.create_engine('sqlite:///db/ocr.sqlite')#, echo=True)
 # Construct a sessionmaker object
 Session = sessionmaker()
 # Bind the sessionmaker to engine
