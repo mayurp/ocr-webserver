@@ -8,8 +8,8 @@ import logging
 from logging import Formatter, FileHandler
 from PIL import Image, ImageFilter, ImageDraw
 import tesseract
-from cStringIO import StringIO
-import requests
+from io import BytesIO
+import urllib2
 import database
 import json
 from os import path
@@ -100,11 +100,11 @@ def download_file(url):
         if path.isfile(url):
             return open(url, 'rb')
         else:
-            #, headers={'User-Agent': 'OCR Server 1.0'}
             logging.info("Downloading file: %s", url)
-            response = requests.get(url)
-            if response.status_code == 200:
-                return contextlib.closing(StringIO(response.content))
+            req = urllib2.Request(url, headers={'User-Agent' : "Magic Browser"}) 
+            response = urllib2.urlopen(req)
+            if response.code == 200:
+                return BytesIO(response.read())
             else:
                 raise DownloadError("Failed to download image: %s, response: %d" % (url, response.status_code))
     except Exception as e:

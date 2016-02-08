@@ -35,7 +35,7 @@ app = App()
 class APIError(web.HTTPError):
     def __init__(self, message, status_code=400):
         web.HTTPError.__init__(self, status_code, reason=message)
-        
+
     # def to_dict(self):
     #     rv = dict(self.payload or ())
     #     rv['error'] = self.message
@@ -178,11 +178,10 @@ def shutdown():
         else:
             io_loop.stop()
             logging.info('Shutdown')
-    
+
     stop_loop()
 
-    ocr_executor.shutdown()
-
+    ocr_executor.shutdown(wait=False)
 
 def sig_handler(sig, frame):
     logging.warning('Caught signal: %s', sig)
@@ -214,17 +213,17 @@ if __name__ == '__main__':
 
     logging.info('Starting up...')
     application = tornado.web.Application(app.get_routes(), default_handler_class=DefaultHandler, debug=args.debug)
-    
+
     global server
 
     server = tornado.httpserver.HTTPServer(application)
     server.bind(args.port)
-    
+
     signal.signal(signal.SIGTERM, sig_handler)
     signal.signal(signal.SIGINT, sig_handler)
 
     logging.info("Starting server processes: %d", server_processes)
-    server.start(server_processes)    
+    server.start(server_processes)
 
     #num_ocr_processes = max(1, proc_count / 2)
     #num_search_pocesses = proc_count

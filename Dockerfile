@@ -17,7 +17,7 @@ RUN apt-get install -y  libtesseract3 libtesseract-dev tesseract-ocr tesseract-o
 RUN pip install Pillow==3.1.0
 RUN pip install SQLAlchemy==1.0.11
 RUN pip install Wand==0.4.2
-RUN pip install requests==2.9.1
+#RUN pip install requests==2.9.1
 RUN pip install tornado==4.3
 RUN pip install tornado-smack==1.0.4
 RUN pip install futures
