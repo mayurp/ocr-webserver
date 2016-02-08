@@ -16,7 +16,7 @@ import ocr
 import xml.etree.ElementTree as etree
 import itertools
 import operator
-import tempfile
+from xml.dom import minidom
 
 from pyparsing import *
 
@@ -60,6 +60,11 @@ def get_keywords(query):
     return tokens[0::2]
 
 
+# Return search results as list of tuples in the form:
+#            [
+#               ( image_url,  [keyword_1, [(x1, y1, x2, y2, page)]], [keyword_2, ...] ),
+#               ..
+#             ]
 def search(query, page=1, page_size=10):
     try:
         parsed_query = QUERY_PARSER.parseString(query).asList()
@@ -90,6 +95,8 @@ def search(query, page=1, page_size=10):
             
             # Merge bounding boxes for the keyword
             keyword_boxes = [box for _, box in keyword_char_boxes]
+
+            # Separate boxes by page
             boxes_forpage = []
             for boxes in group_boxes_by_page(keyword_boxes):
                 boxes_forpage += [merge_bounding_boxes(boxes)]
@@ -99,11 +106,13 @@ def search(query, page=1, page_size=10):
         results += [(record.image_url, image_results)]
     return results
 
-#
-def group_boxes_by_page(boxes):
-    return [list(group) for key,group in itertools.groupby(boxes, operator.itemgetter(4))]
 
-# (x1, y1, x2, y2)
+# Tale list of boxes and return list of lists grouped by page
+def group_boxes_by_page(boxes):
+    return [list(group) for key, group in itertools.groupby(boxes, operator.itemgetter(4))]
+
+
+# Merge boxes in the form (x1, y1, x2, y2) into 1 box
 def merge_bounding_boxes(boxes):
     x1_list = [b[0] for b in boxes]
     y1_list = [b[1] for b in boxes]
@@ -111,18 +120,26 @@ def merge_bounding_boxes(boxes):
     y2_list = [b[3] for b in boxes]
     return min(x1_list), min(y1_list), max(x2_list), max(y2_list), boxes[0][4]
 
-def search_results_as_xml(keywords, page, page_size):
-    results = search(keywords, page, page_size)
 
-    root = etree.Element('search_result', records_found=str(len(results)), page=str(page), page_size=str(page_size), keywords=keywords)
-    #doc = etree.ElementTree(root)
-    for url, boxes in results:
-        imageElem = etree.SubElement(root, 'image', url=url)
-        for _, (x1, y1, x2, y2, page) in boxes:
-            etree.SubElement(imageElem, 'match_spot', x1=str(x1)+'px', y1=str(y1)+'px', x2=str(x2)+'px', y2=str(y2)+'px', page=str(page+1))
+def search_results_as_xml(query, page=1, page_size=10):
+    results = search(query, page, page_size)
+    return search_results_to_xml(results, query, page, page_size)
+
+
+def search_results_to_xml(results, query, page=1, page_size=10):
+    root = etree.Element('search_result', records_found=str(len(results)), page=str(page), page_size=str(page_size), keywords=query)
+    for image_url, image_results in results:
+        imageElem = etree.SubElement(root, 'image', url=image_url)
+        for keyword, boxes in image_results:
+            for x1, y1, x2, y2, page in boxes:
+                etree.SubElement(imageElem, 'match_spot', x1=str(x1)+'px', y1=str(y1)+'px', x2=str(x2)+'px', y2=str(y2)+'px', page=str(page+1))
 
     return etree.tostring(root, encoding="utf-8")
 
+
+def prettify_xml(xml_str):
+    parsed = minidom.parseString(xml_str)
+    return parsed.toprettyxml(indent="\t")
 
 # For debugging bounding box data
 def debug_show_search_result(image_url, boxes):    
@@ -150,12 +167,16 @@ def main():
         return
 
     logging.info("Found %d results:", len(results))
-    print results
+    #logging.debug(print results)
 
-    for image_url, boxes in results:
-        logging.info(image_url + ":\n")
-        for keyword, box in boxes:
-            logging.info("\t %s : %s", keyword, box)
+    # for image_url, boxes in results:
+    #     logging.info(image_url + ":\n")
+    #     for keyword, box in boxes:
+    #         logging.info("\t %s : %s", keyword, box)
+
+    xml_str = search_results_to_xml(results, unicode(args.keyword, 'utf-8'))
+    logging.debug(prettify_xml(xml_str))
+
 
     if args.show:
         logging.info("Showing first result image:")
