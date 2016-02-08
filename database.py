@@ -3,35 +3,35 @@
 
 """Database Helper"""
 
-
-from PIL import Image
-from PIL import ImageFilter
-from StringIO import StringIO
 import os
-import requests
 import logging
 from logging import Formatter, FileHandler
-from flask_sqlalchemy import SQLAlchemy
-#TODO Use whoosh for full text search
-#import flask.ext.whooshalchemy as whooshalchemy
+import sqlalchemy
+from sqlalchemy.ext.declarative import declarative_base
 import datetime
-import server
+from sqlalchemy import Column, Integer, String, Text, UnicodeText, DateTime
+from sqlalchemy.orm import sessionmaker
+
 
 if not os.path.exists("db"):
     os.makedirs("db")
 
-server.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/ocr.sqlite'
-server.app.config['WHOOSH_BASE'] = 'db/whoosh'
-server.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(server.app)
+Base = declarative_base()
+engine = sqlalchemy.create_engine('sqlite:///db/ocr.sqlite')
+# Construct a sessionmaker object
+Session = sessionmaker()
+# Bind the sessionmaker to engine
+Session.configure(bind=engine)
+session = Session()
 
-class OcrMetaData(db.Model):
-    #__searchable__ = 'text'
 
-    image_url = db.Column(db.Text, primary_key=True)
-    text = db.Column(db.UnicodeText)
-    bounding_boxes = db.Column(db.UnicodeText)
-    created = db.Column(db.DateTime, default=datetime.datetime.now())
+class OcrMetaData(Base):
+    __tablename__ = 'ocr_data'
+
+    image_url = Column(String, primary_key=True)
+    text = Column(String)
+    bounding_boxes = Column(String)
+    created = Column(DateTime, default=datetime.datetime.now())
 
     def __init__(self, image_url, text, bounding_boxes):
         self.image_url = image_url
@@ -39,25 +39,27 @@ class OcrMetaData(db.Model):
         self.bounding_boxes = bounding_boxes
 
     def __repr__(self):
-        return '<OcrMetaData %r>' % (self.image_url)
+        return '<OcrMetaData %r>' % self.image_url
 
-db.create_all()
-#whooshalchemy.whoosh_index(server.app, OcrMetaData)
+
+# Create all the tables in the database which are
+# defined by Base's subclasses such as User
+Base.metadata.create_all(engine)
 
 
 def save_ocr_metadata(image_url, text, bounding_boxes):
     logging.info("Saving metadata to database for: %s", image_url)
-    existing_record = OcrMetaData.query.get(image_url)
+    existing_record = session.query(OcrMetaData).get(image_url)
     if existing_record:
         existing_record.text = text
         existing_record.bounding_boxes = bounding_boxes
         existing_record.created = datetime.datetime.now()
     else:
-        db.session.add(OcrMetaData(image_url, text, bounding_boxes))
-    db.session.commit()
+        session.add(OcrMetaData(image_url, text, bounding_boxes))
+    session.commit()
+
 
 # TODO whoosh for full text search
 def query_ocr_metadata(keyword, page, page_size):
-    #return OcrMetaData.query.whoosh_search('keyword OR blah')
-    #return OcrMetaData.query.filter(OcrMetaData.text.like(("%" + keyword.decode("utf-8") + "%"))).paginate(page=page, per_page=page_size)
-    return OcrMetaData.query.filter(OcrMetaData.text.like("%" + keyword + "%")).paginate(page=page, per_page=page_size)
+    offset = page_size * max(0, (page - 1))
+    return session.query(OcrMetaData).filter(OcrMetaData.text.like("%" + keyword + "%")).limit(page_size).offset(offset).all()

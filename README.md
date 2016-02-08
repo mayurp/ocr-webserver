@@ -21,7 +21,7 @@ Please refer to the Dockerfile for details of the container.
 
 ## Option 2. Manual Installation
 
-If you do not wish to use Docker you will need to instead install all the dependencies specified in the Dockerfile yourself.
+If you do not wish to use Docker. You will need to instead install all the dependencies specified in the Dockerfile yourself.
 
 Also, you should use python virtualenv:
 	
@@ -49,7 +49,7 @@ English:
 	curl --include --request POST --header "Content-Type: application/json" --data-binary "{  
 	    \"image_url\":\"http://bit.ly/ocrimage\",
 	    \"lang\":\"eng\"
-	}" 'http://127.0.0.1:5000/v1/ocr'
+	}" 'http://127.0.0.1:5000/ocr'
 
 
 English and Traditional Chinese 
@@ -57,7 +57,7 @@ English and Traditional Chinese
 	curl --include --request POST --header "Content-Type: application/json" --data-binary "{  
 	    \"image_url\":\"https://i.ytimg.com/vi/xEnutX1zZfA/maxresdefault.jpg\",
 	    \"lang\":\"eng+chi_tra\"
-	}" 'http://127.0.0.1:5000/v1/ocr'
+	}" 'http://127.0.0.1:5000/ocr'
 
 
 For English and Simplified Chinese use `"lang": "eng+chi_sim"`
@@ -68,7 +68,7 @@ For English and Simplified Chinese use `"lang": "eng+chi_sim"`
 	    \"keywords\":\"全文\",
 	    \"page\": 1,
 	    \"page_size\": 10
-	}" 'http://127.0.0.1:5000/v1/search'
+	}" 'http://127.0.0.1:5000/search'
 
 
 ## Standalone Testing
