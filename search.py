@@ -87,7 +87,7 @@ def search(query, page=1, page_size=10):
         image_results = []
         for keyword in keywords:
             # Get start and end position of keyword
-            positions = [(match.start(), len(keyword)) for match in re.finditer(re.escape(keyword), text)]
+            positions = [(match.start(), len(keyword)) for match in re.finditer(re.escape(keyword), text, re.IGNORECASE | re.UNICODE)]
             # Get bounding box of each character
             keyword_char_boxes = [bounding_boxes[start:start+length] for start, length in positions]
 
