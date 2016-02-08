@@ -17,9 +17,8 @@ from tornado.ioloop import IOLoop
 from tornado.gen import coroutine
 from tornado import web
 from concurrent.futures import ProcessPoolExecutor
-import multiprocessing
 from tornado_smack import App
-import random, time
+import time
 import sys
 import signal
 import ConfigParser
@@ -79,9 +78,8 @@ def ocr_api(self):
     try:
         #text, _ = ocr.process_image(url, lang, store_data=True)
         text, _ = yield ocr_executor.submit(ocr.process_image, url, lang, store_data=True)
-        # workaround to set charset to utf8
         self.set_header('Content-Type', 'application/json')
-        #self.write(json.dumps({"output" : text}, ensure_ascii=False))
+        self.write(json.dumps({"output" : text}, ensure_ascii=False))
     except ocr.DownloadError as e:
         raise APIError(e.message)
     except Exception as e:
@@ -106,57 +104,17 @@ def search_api(self):
         raise APIError("Unexpected error during search: %s" % e.message, status_code=500)
 
 
-# def ocr_task(url):
-#     s = 0
-#     for i in range(0, 10000*1000):
-#         s += i
-#     return s
-
-# @app.route('/test', methods=["GET"], handler_bases=(BaseHandler,))
-# @coroutine
-# def test_api(self):
-#     blah = self.request.body
-#     #res = yield self.long_running_task(3)
-#     res = yield ocr_executor.submit(long_running_task, 3) 
-#     self.write("--test done : %d\n" % res)
-
-# @app.route('/quick', methods=["GET"], handler_bases=(BaseHandler,))
-# @coroutine
-# def quick_api(self):
-#     #blah = self.request.body
-#     #search_executor
-#     self.write("------ quick done\n") 
-
-
-# Error handlers
-
-# @app.errorhandler(500)
-# def internal_error(error):
-#     logging.info(str(error))
-
-
-# @app.errorhandler(404)
-# def not_found_error(error):
-#     logging.info(str(error))
-
-
-# @app.errorhandler(APIError)
-# def handle_api_error(error):
-#     response = error.to_dict()
-#     response.status_code = error.status_code
-#     return response
-
-def init_logging(debug=False):
-    if not debug:
-        file_handler = FileHandler('error.log')
-        file_handler.setFormatter(
-            Formatter('%(asctime)s %(levelname)s: \
-                %(message)s [in %(pathname)s:%(lineno)d]')
-        )
-        app.logger.setLevel(logging.INFO)
-        file_handler.setLevel(logging.INFO)
-        app.logger.addHandler(file_handler)
-        app.logger.info('errors')
+# def init_logging(debug=False):
+#     if not debug:
+#         file_handler = FileHandler('error.log')
+#         file_handler.setFormatter(
+#             Formatter('%(asctime)s %(levelname)s: \
+#                 %(message)s [in %(pathname)s:%(lineno)d]')
+#         )
+#         app.logger.setLevel(logging.INFO)
+#         file_handler.setLevel(logging.INFO)
+#         app.logger.addHandler(file_handler)
+#         app.logger.info('errors')
 
 
 MAX_WAIT_SECONDS_BEFORE_SHUTDOWN = 3
@@ -219,6 +177,7 @@ if __name__ == '__main__':
     server = tornado.httpserver.HTTPServer(application)
     server.bind(args.port)
 
+    # Handle shutdown signals
     signal.signal(signal.SIGTERM, sig_handler)
     signal.signal(signal.SIGINT, sig_handler)
 
