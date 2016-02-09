@@ -149,12 +149,16 @@ def is_pdf(aFile):
 
 
 def pdf_to_image(imageFile):
-    # Open from filename since opening as file handle means the 
-    # format isn't detected as pdf
-    logging.info("Converting pdf to image")
-    with WandImage(filename=imageFile.name, resolution=300) as wand_image:
+    logging.info("Converting PDF to image")
+    # Open from filename if possible since using file handle means the
+    # format isn't detected properly
+    if hasattr(imageFile, 'name'):
+        wand_image = WandImage(filename=imageFile.name, format='pdf', resolution=300)
+    else:
+        wand_image = WandImage(file=imageFile, format='pdf', resolution=300)
+    with wand_image:
         # tif written can't be read by Pillow so use gif instead which also supports multi-page
-        #print wand_image.size
+        logging.info("PDF to Image size: %s", str(wand_image.size))
         data = BytesIO(wand_image.make_blob(format='gif'))
         return Image.open(data)
 

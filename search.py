@@ -69,7 +69,7 @@ def search(query, page=1, page_size=10):
     try:
         parsed_query = QUERY_PARSER.parseString(query).asList()
     except Exception, e:
-        raise InvalidQuerySyntax("Invalid query syntax:  %s", e.message)
+        raise InvalidQuerySyntax("Invalid query syntax:  %s", e)
 
     logging.debug("Parsed Query: %s", unicode(parsed_query))
     keywords = get_keywords(parsed_query)
