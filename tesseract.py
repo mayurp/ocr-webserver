@@ -10,7 +10,7 @@ import os
 import sys
 import ctypes
 from  PIL import Image
-import time
+import logging
 
 # Change this according to your platform
 if sys.platform == "darwin":
@@ -29,8 +29,7 @@ class TesseractWrapper:
         try:
             tesseract = ctypes.cdll.LoadLibrary(LIB_NAME)
         except Exception, e:
-            print("Failed to load '%s'" % LIB_NAME)
-            print(e)
+            logging.error("Failed to load '%s: %s'", LIB_NAME, e)
             exit(1)
 
         tesseract.TessVersion.restype = ctypes.c_char_p
@@ -72,17 +71,16 @@ class TesseractWrapper:
 
         tesseract_version = tesseract.TessVersion()[:4]
 
-
-        print("Found tesseract-ocr library version %s." % tesseract_version)
+        logging.info("Found tesseract-ocr library version %s." % tesseract_version)
         if float(tesseract_version) < 3.02:
-            print("C-API is present only in version 3.02!")
+            logging.error("C-API is present only in version 3.02!")
             exit(2)
 
         api = tesseract.TessBaseAPICreate()
         rc = tesseract.TessBaseAPIInit3(api, tessdata, lang)
-        if (rc):
+        if rc:
             tesseract.TessBaseAPIDelete(api)
-            print("Could not initialize tesseract.\n")
+            logging.error("Could not initialize tesseract.\n")
             exit(3)
 
         self.tesseract = tesseract
@@ -135,9 +133,9 @@ def main():
     #end = time.time()
     #print(end - start)
 
-    print text 
-    print "-----------"
-    print boxes
+    logging.info(text)
+    logging.info("-----------")
+    logging.info(boxes)
 
 
 if __name__ == '__main__':

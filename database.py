@@ -82,7 +82,6 @@ def get_filter(l):
 
             args = []
             for e in l[0::2]:
-                print e
                 args += [get_filter(e)]
             return op(*args)
     else:
