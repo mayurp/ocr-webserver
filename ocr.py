@@ -11,15 +11,14 @@ import tesseract
 from io import BytesIO
 import urllib2
 import database
+import math
 import json
 from os import path
-import contextlib
 from wand.image import Image as WandImage
 import re
 
 
-MIN_WIDTH = 1000
-MIN_HEIGHT = 2000
+MIN_RESOLUTION = 1024*1024
 
 
 class DownloadError(Exception):
@@ -42,16 +41,13 @@ def process_image(url, lang="eng", store_data=False):
             for page in range(0, num_pages):
                 image.seek(page)
                 w, h = image.size
-                scale_x, scale_y = 1.0, 1.0
-                if w < MIN_WIDTH:
-                    scale_x = float(MIN_WIDTH) / w
-                if h < MIN_HEIGHT:
-                    scale_y = float(MIN_HEIGHT) / h
-                scale = max(scale_x, scale_y)
 
-                #print scale_x, scale_y
+                logging.debug("Original image size: %d x %d", w, h)
+
+                pixels = w * h
                 scaled_image = image
-                if scale > 1:
+                if pixels < MIN_RESOLUTION:
+                    scale = math.sqrt(MIN_RESOLUTION / pixels)
                     logging.debug("Upscaling image to: %d x %d", int(w * scale), int(h * scale))
                     scaled_image = image.resize((int(w * scale), int(h * scale)), Image.ANTIALIAS)
 
@@ -125,8 +121,8 @@ def download_file(url):
             return open(url, 'rb')
         else:
             logging.info("Downloading file: %s", url)
-            req = urllib2.Request(url, headers={'User-Agent' : "Magic Browser"}) 
-            response = urllib2.urlopen(req)
+            req = urllib2.Request(url, headers={'User-Agent' : "Magic Browser"})
+            response = urllib2.urlopen(req, timeout=20)
             if response.code == 200:
                 return BytesIO(response.read())
             else:
