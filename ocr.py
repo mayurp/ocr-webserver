@@ -47,7 +47,7 @@ def process_image(url, lang="eng", store_data=False):
                 pixels = w * h
                 scaled_image = image
                 if pixels < MIN_RESOLUTION:
-                    scale = math.sqrt(MIN_RESOLUTION / pixels)
+                    scale = math.sqrt(float(MIN_RESOLUTION) / pixels)
                     logging.debug("Upscaling image to: %d x %d", int(w * scale), int(h * scale))
                     scaled_image = image.resize((int(w * scale), int(h * scale)), Image.ANTIALIAS)
 
@@ -86,7 +86,8 @@ def process_image(url, lang="eng", store_data=False):
             boxes_text = u"".join([b[0] for b in boxes])
 
             if stripped_text != boxes_text:
-                logging.error("lengths - (text, boxes, boxes_text) : (%d, %d, %d)", len(stripped_text), len(boxes), len(boxes_text))
+                logging.error("Text does not match boxes: - (text, boxes, boxes_text) : (%d, %d, %d), url: %s",
+                                len(stripped_text), len(boxes), len(boxes_text), url)
                 #raise Exception("tesseract text does not match boxes text")
 
             if store_data:

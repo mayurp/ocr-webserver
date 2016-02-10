@@ -66,6 +66,9 @@ def get_keywords(query):
 #               ..
 #             ]
 def search(query, page=1, page_size=10):
+    if len(query.strip()) == 0:
+        raise InvalidQuerySyntax("Empty query")
+
     try:
         parsed_query = QUERY_PARSER.parseString(query).asList()
     except Exception, e:

@@ -23,9 +23,10 @@ import sys
 import signal
 import ConfigParser
 
+
 import ocr
 import search
-
+from search import InvalidQuerySyntax
 
 app = App()
 
@@ -88,6 +89,7 @@ def ocr_api(self):
 
 # Search OCR meta data of processed images
 @app.route('/search', methods=["GET", "POST"], handler_bases=(BaseHandler,))
+@coroutine
 def search_api(self):
     try:
         request_json = json.loads(self.request.body)
@@ -97,9 +99,12 @@ def search_api(self):
     except:
         raise APIError("Did you mean to send: {'keywords': 'someword', 'page' : 1, 'page_size' : 10 }")
     try:
-        results_xml = search.search_results_as_xml(keywords, page, page_size)
+        #results_xml = search.search_results_as_xml(keywords, page, page_size)
+        results_xml = yield search_executor.submit(search.search_results_as_xml, keywords, page, page_size)
         self.set_header('Content-Type', 'text/xml')
         self.write(results_xml)
+    except InvalidQuerySyntax as e:
+        raise APIError("%s" % e.message, status_code=400)
     except Exception as e:
         raise APIError("Unexpected error during search: %s" % e.message, status_code=500)
 
@@ -163,6 +168,7 @@ if __name__ == '__main__':
     config.read("config.ini")
     server_processes = int(config.get('server', 'server_processes'))
     ocr_processes = int(config.get('server', 'ocr_processes'))
+    search_processes = int(config.get('server', 'search_processes'))
 
     # Tornado can't start with multiple processes in debug mode
     if args.debug:
@@ -188,7 +194,7 @@ if __name__ == '__main__':
     #num_search_pocesses = proc_count
     logging.info("OCR process pool size: %d", ocr_processes)
     ocr_executor = ProcessPoolExecutor(ocr_processes)
-    #search_executor = ProcessPoolExecutor(num_search_pocesses)
-    #logging.info("Search process pool size: %d", num_search_pocesses)
+    search_executor = ProcessPoolExecutor(search_processes)
+    logging.info("Search process pool size: %d", search_processes)
 
     IOLoop.current().start()
