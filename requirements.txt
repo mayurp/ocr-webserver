@@ -7,3 +7,4 @@ tornado==4.3
 tornado-smack==1.0.4
 futures
 pyparsing
+grequests
