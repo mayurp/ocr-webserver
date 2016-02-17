@@ -40,6 +40,15 @@ Also, you should use python virtualenv:
 You can use run `./server.py --help` for startup options.
 
 
+### Process Configuration
+
+The search and OCR APIs are asynchronous and are handled by worker process pools. 
+
+You can change the number of processes for the server and the process pools in `config.ini`. 
+Note that  process pool sizes are per server. It's probably best to keep the server process count as 1 and adjust the worker pool sizes according the the number of cpu cores available. 
+You should keep the number of OCR processes lower than the available cpu cores so search apis can still be processed in a timely manner.
+
+
 ## Testing the OCR API:
 
 Please note you should change the ip address and port according to your setup.
@@ -84,3 +93,16 @@ The image will then be searchable:
 To run these tests in the docker container simply use `docker exec`. For example:
 
 	docker exec <CONTAINER-ID> ./search.py "全文"
+
+## Search query syntax
+
+The Search API is case insensitive and supports the operators AND, OR and brackets. For example:  
+	
+	apples OR oranges
+    apples AND oranges
+    apples oranges    // the AND is implicit
+    books AND (reading OR writing)
+
+To search for literal strings you can enclose the words in quotes. This is needed when you need to search for words with spaces or containing "and" / "or":
+
+	"tshirts and jeans" AND pebbles  
